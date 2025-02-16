@@ -1,8 +1,15 @@
 extends Node
+#
+#var mob_paths = [
+	##"res://enemy.tscn",
+	#"res://peixe.tscn"	
+#]
+
 
 @export var mob_scene: PackedScene
 var score
-
+var impact_occurrences_count = 0
+var lifes = 3
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -21,11 +28,14 @@ func game_over() -> void:
 	
 	$HUD.show_game_over()
 	$Musica.stop()
-	$SomDeMorte.play()
-
+	if impact_occurrences_count <= 0:
+		$SomDeMorte.play()
+		impact_occurrences_count += 1
 
 func new_game():
 	score = 0
+	impact_occurrences_count = 0
+	
 	$Musica.play()
 	$Player.start($StartPosition.position)
 	$StartTimer.start()
@@ -45,19 +55,29 @@ func _on_start_timer_timeout() -> void:
 	$ScoreTimer.start()
 
 func _on_mob_timer_timeout() -> void:
-	var mob = mob_scene.instantiate()
+	var mob = get_enemy()
 	
-	var mob_spawn_location  = $MobPath/LocalMobGeneration
-	mob_spawn_location .progress_ratio = randf()	
+	var viewport_rect = get_viewport().get_visible_rect()  # Obtém o tamanho da tela
 	
-	mob.position = mob_spawn_location .position
+	# Definir posição inicial na borda direita da tela
+	var spawn_x = viewport_rect.position.x  # Posição no final da tela (esquerda)
+	var spawn_y = randf_range(0, viewport_rect.size.y)  # Posição aleatória na altura da tela
+
+	mob.position = Vector2(spawn_x, spawn_y)  # Define a posição do mob
 	
-	var direction = mob_spawn_location.rotation + PI / 2
+	var direction = Vector2(1, randf_range(-0.5, 0.5)).normalized()  # Movendo da direita para a direita
 	
-	direction += randf_range(-PI /4, PI /4)
-	mob.rotation = direction
+	mob.rotation = direction.angle()
 	
-	var velocity = Vector2(randf_range(150.0, 250.0), 0.0)
-	mob.linear_velocity = velocity.rotated(direction)
+	var velocity = randf_range(150.0, 350.0)  # Define a velocidade aleatória
+	mob.linear_velocity = direction * velocity  # Aplica a velocidade ao mob
 	
 	add_child(mob)
+
+func get_enemy():
+	var enemy = mob_scene.instantiate()
+	return enemy
+	#var random_index = randi() % mob_paths.size()
+	#var selected_scene = load(mob_paths[random_index])  # Carrega a cena	
+	#return selected_scene.instantiate()
+	
