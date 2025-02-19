@@ -1,9 +1,10 @@
-[gd_scene load_steps=10 format=4 uid="uid://c8jbgus36o8bs"]
+[gd_scene load_steps=11 format=4 uid="uid://c8jbgus36o8bs"]
 
 [ext_resource type="Script" path="res://main.gd" id="1_k40ft"]
 [ext_resource type="PackedScene" uid="uid://bujysl0i1ktjq" path="res://player.tscn" id="1_tw2b7"]
 [ext_resource type="Texture2D" uid="uid://dq37ufvm3g8by" path="res://art/4161657.jpg" id="2_8lge7"]
 [ext_resource type="PackedScene" uid="uid://dhehcye5aib7m" path="res://peixe.tscn" id="2_y3kjn"]
+[ext_resource type="PackedScene" uid="uid://dumr6asc8h18v" path="res://reward.tscn" id="3_2psii"]
 [ext_resource type="PackedScene" uid="uid://b4npc65u0s4g1" path="res://hud.tscn" id="4_cb0o8"]
 
 [sub_resource type="Curve2D" id="Curve2D_svcak"]
@@ -29,6 +30,7 @@ stereo = true
 [node name="Main" type="Node"]
 script = ExtResource("1_k40ft")
 mob_scene = ExtResource("2_y3kjn")
+reward_scene = ExtResource("3_2psii")
 
 [node name="ColorRect" type="ColorRect" parent="."]
 anchors_preset = 15
@@ -79,8 +81,16 @@ stream = SubResource("AudioStreamOggVorbis_7kt5h")
 [node name="SomDeMorte" type="AudioStreamPlayer" parent="."]
 stream = SubResource("AudioStreamWAV_crsyr")
 
+[node name="BackgroundTimer" type="Timer" parent="."]
+wait_time = 20.0
+
+[node name="RewardTimer" type="Timer" parent="."]
+wait_time = 20.0
+
 [connection signal="hit" from="Player" to="." method="_on_player_hit"]
 [connection signal="timeout" from="MobTimer" to="." method="_on_mob_timer_timeout"]
 [connection signal="timeout" from="ScoreTimer" to="." method="_on_score_timer_timeout"]
 [connection signal="timeout" from="StartTimer" to="." method="_on_start_timer_timeout"]
 [connection signal="start_game" from="HUD" to="." method="new_game"]
+[connection signal="timeout" from="BackgroundTimer" to="." method="_on_background_timer_timeout"]
+[connection signal="timeout" from="RewardTimer" to="." method="_on_reward_timer_timeout"]

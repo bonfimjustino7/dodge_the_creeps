@@ -5,8 +5,15 @@ signal hit
 @export var speed = 400
 var screen_size
 
+@onready var effects = $Effects
+var safe_life = false
+var has_hiting = false
+
 func _ready() -> void:
 	screen_size = get_viewport_rect().size
+	effects.play("RESET")
+	has_hiting = false
+	safe_life = false
 
 func _process(delta: float) -> void:
 	var velocity = Vector2.ZERO
@@ -38,9 +45,33 @@ func _process(delta: float) -> void:
 	
 
 func _on_body_entered(body: Node2D):
-	print_debug(body.name)
-	hit.emit()
+	if safe_life:
+		return
+	
+	#print_debug(body.name)
+	if body.is_in_group("reward"):
+		effects.play("blink_safe")
+		print_debug("Iniciou safe")
+		$SafeTimer.start()
+		safe_life = true
+		$HitTimer.stop()
+	else:		
+		has_hiting = true
+		effects.play("blink")
+		hit.emit()
+
+#func blink_hit():
+	#effects.play("blink")
 
 func start(pos):
 	position = pos
 	show()
+
+func _on_hit_timer_timeout() -> void:	
+	effects.play("RESET")
+	has_hiting = false
+#
+func _on_safe_timer_timeout() -> void:
+	safe_life = false
+	effects.play("RESET")
+	print_debug("Finalizou safe")

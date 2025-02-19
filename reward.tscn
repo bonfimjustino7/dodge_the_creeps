@@ -1,0 +1,44 @@
+[gd_scene load_steps=6 format=3 uid="uid://dumr6asc8h18v"]
+
+[ext_resource type="Texture2D" uid="uid://t5uno1tpdafw" path="res://art/recompensa/recompensa_outline.png" id="1_m0e1w"]
+[ext_resource type="Script" path="res://reward.gd" id="1_skf8a"]
+[ext_resource type="Texture2D" uid="uid://ddavtvvc2g600" path="res://art/recompensa/recompensa.png" id="4_pvhg6"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_uf6qs"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_m0e1w")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_pvhg6")
+}],
+"loop": true,
+"name": &"recompensa",
+"speed": 5.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_pq6cp"]
+radius = 81.3449
+
+[node name="Reward" type="RigidBody2D" groups=["reward"]]
+position = Vector2(131, 87)
+gravity_scale = 0.0
+script = ExtResource("1_skf8a")
+metadata/_edit_group_ = true
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+scale = Vector2(0.4, 0.4)
+sprite_frames = SubResource("SpriteFrames_uf6qs")
+animation = &"recompensa"
+frame_progress = 0.520163
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+scale = Vector2(0.5, 0.5)
+shape = SubResource("CircleShape2D_pq6cp")
+
+[node name="VisibleOnScreenNotifier2D" type="VisibleOnScreenNotifier2D" parent="."]
+position = Vector2(1.5, -1.5)
+scale = Vector2(0.25, 0.35)
+
+[connection signal="screen_exited" from="VisibleOnScreenNotifier2D" to="." method="_on_visible_on_screen_notifier_2d_screen_exited"]

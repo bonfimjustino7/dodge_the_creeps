@@ -7,15 +7,17 @@ extends Node
 
 
 @export var mob_scene: PackedScene
+@export var reward_scene: PackedScene
 @onready var heartsContainer = $HUD/HeartsContainer
+@onready var backgroundDefault = $TextureRect.texture
 
-var default_lifes = 3
+var default_lifes = 5
 var score
-var lifes = 3
+var lifes
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	heartsContainer.setMaxHearts(lifes)	
+	heartsContainer.setMaxHearts(default_lifes)	
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -24,8 +26,12 @@ func _process(delta: float) -> void:
 
 
 func _on_player_hit() -> void:
+	#$Player.blink_hit()
+	$Player/HitSound.play()
+	$Player/HitTimer.start()
+	
 	lifes -= 1
-	heartsContainer.updateHearts(lifes)	
+	if lifes >= 0: heartsContainer.updateHearts(lifes)
 	
 	if lifes == 0:
 		game_over()
@@ -34,25 +40,48 @@ func game_over() -> void:
 	$Player.hide()
 	$ScoreTimer.stop()
 	$MobTimer.stop()
+	$RewardTimer.stop()
 	
 	$HUD.show_game_over()
 	$Musica.stop()
-	$SomDeMorte.play()	
+	$SomDeMorte.play()
+	$BackgroundTimer.stop()
 
 
 func new_game():
 	score = 0
 	lifes = default_lifes
+	heartsContainer.updateHearts(lifes)
+	$TextureRect.texture = backgroundDefault
 	
-	$Musica.play()
+	#$Musica.play()
 	$Player.start($StartPosition.position)
 	$StartTimer.start()
+	$BackgroundTimer.start()
 		
 	$HUD.update_score(score)
 	$HUD.show_message("Get Ready")
 		
 	get_tree().call_group("mobs", "queue_free") # destroi todos os inimigos
 
+
+func populate_node(node: Node):
+	var viewport_rect = get_viewport().get_visible_rect()  # Obtém o tamanho da tela
+	
+	# Definir posição inicial na borda direita da tela
+	var spawn_x = viewport_rect.position.x  # Posição no final da tela (esquerda)
+	var spawn_y = randf_range(0, viewport_rect.size.y)  # Posição aleatória na altura da tela
+
+	node.position = Vector2(spawn_x, spawn_y)  # Define a posição do mob
+	
+	var direction = Vector2(1, randf_range(-0.5, 0.5)).normalized()  # Movendo da direita para a direita
+	
+	node.rotation = direction.angle()
+	
+	var velocity = randf_range(150.0, 350.0)  # Define a velocidade aleatória
+	node.linear_velocity = direction * velocity  # Aplica a velocidade ao mob
+	
+	add_child(node)
 
 func _on_score_timer_timeout() -> void:
 	score += 1
@@ -62,32 +91,19 @@ func _on_score_timer_timeout() -> void:
 func _on_start_timer_timeout() -> void:
 	$MobTimer.start()
 	$ScoreTimer.start()
+	$RewardTimer.start()
 
 
 func _on_mob_timer_timeout() -> void:
-	var mob = get_enemy()
+	var mob = mob_scene.instantiate()
+	populate_node(mob)
 	
-	var viewport_rect = get_viewport().get_visible_rect()  # Obtém o tamanho da tela
-	
-	# Definir posição inicial na borda direita da tela
-	var spawn_x = viewport_rect.position.x  # Posição no final da tela (esquerda)
-	var spawn_y = randf_range(0, viewport_rect.size.y)  # Posição aleatória na altura da tela
 
-	mob.position = Vector2(spawn_x, spawn_y)  # Define a posição do mob
-	
-	var direction = Vector2(1, randf_range(-0.5, 0.5)).normalized()  # Movendo da direita para a direita
-	
-	mob.rotation = direction.angle()
-	
-	var velocity = randf_range(150.0, 350.0)  # Define a velocidade aleatória
-	mob.linear_velocity = direction * velocity  # Aplica a velocidade ao mob
-	
-	add_child(mob)
+func _on_background_timer_timeout() -> void:
+	var background = $TextureRect
+	background.texture = load("res://art/785.jpg")
 
-func get_enemy():
-	var enemy = mob_scene.instantiate()
-	return enemy
-	#var random_index = randi() % mob_paths.size()
-	#var selected_scene = load(mob_paths[random_index])  # Carrega a cena	
-	#return selected_scene.instantiate()
-	
+
+func _on_reward_timer_timeout() -> void:
+	var reward = reward_scene.instantiate()
+	populate_node(reward)
