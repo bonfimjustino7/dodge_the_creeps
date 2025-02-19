@@ -7,14 +7,15 @@ extends Node
 
 
 @export var mob_scene: PackedScene
+@onready var heartsContainer = $HUD/HeartsContainer
+
+var default_lifes = 3
 var score
-var impact_occurrences_count = 0
 var lifes = 3
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	pass
-	#new_game()
+	heartsContainer.setMaxHearts(lifes)	
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -22,19 +23,26 @@ func _process(delta: float) -> void:
 	pass
 
 
+func _on_player_hit() -> void:
+	lifes -= 1
+	heartsContainer.updateHearts(lifes)	
+	
+	if lifes == 0:
+		game_over()
+
 func game_over() -> void:
+	$Player.hide()
 	$ScoreTimer.stop()
 	$MobTimer.stop()
 	
 	$HUD.show_game_over()
 	$Musica.stop()
-	if impact_occurrences_count <= 0:
-		$SomDeMorte.play()
-		impact_occurrences_count += 1
+	$SomDeMorte.play()	
+
 
 func new_game():
 	score = 0
-	impact_occurrences_count = 0
+	lifes = default_lifes
 	
 	$Musica.play()
 	$Player.start($StartPosition.position)
@@ -50,9 +58,11 @@ func _on_score_timer_timeout() -> void:
 	score += 1
 	$HUD.update_score(score)
 
+
 func _on_start_timer_timeout() -> void:
 	$MobTimer.start()
 	$ScoreTimer.start()
+
 
 func _on_mob_timer_timeout() -> void:
 	var mob = get_enemy()

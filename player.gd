@@ -37,8 +37,8 @@ func _process(delta: float) -> void:
 		$AnimatedSprite2D.flip_v = velocity.y > 0
 	
 
-func _on_body_entered(body: Node2D) -> void:
-	hide()
+func _on_body_entered(body: Node2D):
+	print_debug(body.name)
 	hit.emit()
 
 func start(pos):

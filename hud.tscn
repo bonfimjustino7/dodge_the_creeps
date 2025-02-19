@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://b4npc65u0s4g1"]
+[gd_scene load_steps=6 format=3 uid="uid://b4npc65u0s4g1"]
 
 [ext_resource type="FontFile" uid="uid://dm3latgn7kgnj" path="res://fonts/Xolonium-Regular.ttf" id="1_eoinc"]
 [ext_resource type="Script" path="res://hud.gd" id="1_kw43a"]
+[ext_resource type="PackedScene" uid="uid://ctb1qfyirf6gv" path="res://gui/hearts_container.tscn" id="2_fyq31"]
 
 [sub_resource type="InputEventAction" id="InputEventAction_yvp3d"]
 action = &"start_game"
@@ -11,6 +12,12 @@ events = [SubResource("InputEventAction_yvp3d")]
 
 [node name="HUD" type="CanvasLayer"]
 script = ExtResource("1_kw43a")
+
+[node name="HeartsContainer" parent="." instance=ExtResource("2_fyq31")]
+offset_left = 107.0
+offset_top = 21.0
+offset_right = 283.0
+offset_bottom = 73.0
 
 [node name="ScoreLabel" type="Label" parent="."]
 anchors_preset = 5
