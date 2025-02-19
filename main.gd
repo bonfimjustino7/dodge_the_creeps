@@ -10,10 +10,14 @@ extends Node
 @export var reward_scene: PackedScene
 @onready var heartsContainer = $HUD/HeartsContainer
 @onready var backgroundDefault = $TextureRect.texture
+@onready var black_ocean = preload("res://art/785.jpg")
 
 var default_lifes = 5
 var score
 var lifes
+var velocity
+var default_velocity = randf_range(150.0, 350.0)  # Define a velocidade aleatória
+var is_alternate_state = false  # Estado alternado
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -50,6 +54,7 @@ func game_over() -> void:
 
 func new_game():
 	score = 0
+	velocity = default_velocity
 	lifes = default_lifes
 	heartsContainer.updateHearts(lifes)
 	$TextureRect.texture = backgroundDefault
@@ -65,7 +70,7 @@ func new_game():
 	get_tree().call_group("mobs", "queue_free") # destroi todos os inimigos
 
 
-func populate_node(node: Node):
+func populate_node(node: Node, velocity):
 	var viewport_rect = get_viewport().get_visible_rect()  # Obtém o tamanho da tela
 	
 	# Definir posição inicial na borda direita da tela
@@ -78,7 +83,6 @@ func populate_node(node: Node):
 	
 	node.rotation = direction.angle()
 	
-	var velocity = randf_range(150.0, 350.0)  # Define a velocidade aleatória
 	node.linear_velocity = direction * velocity  # Aplica a velocidade ao mob
 	
 	add_child(node)
@@ -96,14 +100,22 @@ func _on_start_timer_timeout() -> void:
 
 func _on_mob_timer_timeout() -> void:
 	var mob = mob_scene.instantiate()
-	populate_node(mob)
+	populate_node(mob, velocity)
 	
 
 func _on_background_timer_timeout() -> void:
-	var background = $TextureRect
-	background.texture = load("res://art/785.jpg")
-
+	is_alternate_state = !is_alternate_state  # Alterna o estado
+	if is_alternate_state:		
+		$TextureRect.texture = black_ocean
+		velocity =  randf_range(350.0, 450.0)
+		$Musica.play()
+	else:
+		$TextureRect.texture = backgroundDefault
+		velocity =  default_velocity
+		$Musica.stop()
+		
+	
 
 func _on_reward_timer_timeout() -> void:
 	var reward = reward_scene.instantiate()
-	populate_node(reward)
+	populate_node(reward, default_velocity)

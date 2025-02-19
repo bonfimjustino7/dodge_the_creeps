@@ -14,10 +14,10 @@ events = [SubResource("InputEventAction_yvp3d")]
 script = ExtResource("1_kw43a")
 
 [node name="HeartsContainer" parent="." instance=ExtResource("2_fyq31")]
-offset_left = 107.0
-offset_top = 21.0
-offset_right = 283.0
-offset_bottom = 73.0
+offset_left = 36.0
+offset_top = 24.0
+offset_right = 212.0
+offset_bottom = 76.0
 
 [node name="ScoreLabel" type="Label" parent="."]
 anchors_preset = 5

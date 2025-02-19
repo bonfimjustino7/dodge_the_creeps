@@ -9,11 +9,14 @@ var screen_size
 var safe_life = false
 var has_hiting = false
 
+
+
 func _ready() -> void:
 	screen_size = get_viewport_rect().size
 	effects.play("RESET")
 	has_hiting = false
 	safe_life = false
+	
 
 func _process(delta: float) -> void:
 	var velocity = Vector2.ZERO
@@ -44,10 +47,10 @@ func _process(delta: float) -> void:
 		$AnimatedSprite2D.flip_v = velocity.y > 0
 	
 
-func _on_body_entered(body: Node2D):
+func _on_body_entered(body: Node2D):	
 	if safe_life:
 		return
-	
+
 	#print_debug(body.name)
 	if body.is_in_group("reward"):
 		effects.play("blink_safe")
